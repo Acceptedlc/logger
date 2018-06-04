@@ -23,8 +23,7 @@ class Logger extends Writable{
 		let now = new Date();
 		let logObj = {
 			time: formatDate.call(now, "yyyy-MM-dd hh:mm:ss"),
-			msg: _.isObject(msg)? JSON.stringify(msg): msg,
-			level
+			msg, level
 		};
 		let logMessage = `[${level}] [${logObj.time}] ${JSON.stringify(logObj)}`;
 		super.write(logMessage);
