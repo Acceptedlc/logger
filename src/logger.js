@@ -5,11 +5,12 @@ let printer = require('./printer');
 let Writable = Stream.Writable;
 
 class Logger extends Writable{
-	constructor(category, logDir, currentLevel) {
+	constructor(category, logDir, currentLevel, jsonFormat = false) {
 		super({objectMode: true});
 		this.category = category;
 		this.logDir = logDir;
 		this.currentLevel = currentLevel;
+		this.jsonFormat = jsonFormat;
 	}
 
 	_write(chunk, encoding, callback) {
@@ -25,7 +26,15 @@ class Logger extends Writable{
 			time: formatDate.call(now, "yyyy-MM-dd hh:mm:ss"),
 			msg, level
 		};
-		let logMessage = `[${level}] [${logObj.time}] ${JSON.stringify(logObj)}`;
+		let logMessage;
+		if(jsonFormat) {
+			logMessage = `[${level}] [${logObj.time}] ${JSON.stringify(logObj)}`;
+		} else {
+			logObj.level = level;
+			logObj.time = time;
+			logMessage = JSON.stringify(logObj);
+		}
+
 		super.write(logMessage);
 	}
 

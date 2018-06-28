@@ -21,3 +21,12 @@ logger.info({"hello":"world"});
 * warn
 * error
 * fatal
+
+### API
+
+#### getLogger
+
+* category 类别
+* logDir 输出路径
+* currentLevel 日志级别
+* jsonFormat 是否完全使用json格式，可选，默认false
