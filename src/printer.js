@@ -1,4 +1,5 @@
 const fork = require("child_process").fork;
+var moment = require('moment');
 
 let child = fork(__dirname + "/child.js");
 
@@ -16,6 +17,6 @@ child.on('exit', function() {
 
 exports.print = function(dir, category, msg, cb) {
 	successCb = cb;
-	let suffix =  new Date().getFullYear() + "-" + (new Date().getDate() + 1) + '-' + new Date().getDate();
+	let suffix =  moment().format("YYYY-M-D");
 	child.send({dir, category, suffix, msg});
 };

@@ -1,11 +1,12 @@
 let _ = require('lodash');
+var moment = require('moment');
 let Stream = require('stream');
 let printer = require('./printer');
 
 let Writable = Stream.Writable;
 
 class Logger extends Writable{
-	constructor(category, logDir, currentLevel, jsonFormat = false) {
+	constructor(category, logDir, currentLevel, jsonFormat) {
 		super({objectMode: true});
 		this.category = category;
 		this.logDir = logDir;
@@ -21,17 +22,12 @@ class Logger extends Writable{
 		if(levelOrder[this.currentLevel] > levelOrder[level]) {
 			return;
 		}
-		let now = new Date();
-		let logObj = {
-			time: formatDate.call(now, "yyyy-MM-dd hh:mm:ss"),
-			msg, level
-		};
+
+		let logObj = Object.assign({level, time: moment().format("YYYY-M-D k:m:s")}, msg);
 		let logMessage;
-		if(jsonFormat) {
+		if(!this.jsonFormat) {
 			logMessage = `[${level}] [${logObj.time}] ${JSON.stringify(logObj)}`;
 		} else {
-			logObj.level = level;
-			logObj.time = time;
 			logMessage = JSON.stringify(logObj);
 		}
 
@@ -74,27 +70,12 @@ const levelOrder = {
 
 
 
-function formatDate(fmt) {
-	let o = {
-		"M+": this.getMonth() + 1, //月份
-		"d+": this.getDate(), //日
-		"h+": this.getHours(), //小时
-		"m+": this.getMinutes(), //分
-		"s+": this.getSeconds(), //秒
-		"q+": Math.floor((this.getMonth() + 3) / 3), //季度
-		"S": this.getMilliseconds() //毫秒
-	};
-	if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-	for (var k in o)
-		if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-	return fmt;
-}
 
 let loggers = {};
-exports.getLogger = function getLogger(category, logDir = "/tmp", currentLevel = 'info') {
+exports.getLogger = function getLogger(category, logDir = "/tmp", currentLevel = 'info', jsonFormat = false) {
 	if(loggers[category]) {
 		return loggers[category];
 	}
-	loggers[category] = new Logger(category, logDir, currentLevel);
+	loggers[category] = new Logger(category, logDir, currentLevel, jsonFormat);
 	return loggers[category];
 };
